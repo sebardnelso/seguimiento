@@ -40,6 +40,18 @@ app.post('/login', (req, res) => {
     });
 });
 
+app.post('/location_error', (req, res) => {
+  const { vendedor_id, error, timestamp } = req.body;
+
+  // Mostrar el error en la consola (o en logs si tienes configurado)
+  console.error(`Error de ubicación recibido para vendedor ${vendedor_id}`);
+  console.error(`Error: ${error}`);
+  console.error(`Timestamp: ${timestamp}`);
+
+  // Responder al cliente que el error fue recibido
+  res.status(200).json({ message: 'Error recibido correctamente' });
+});
+
 // Ruta para recibir la ubicación
 app.post('/location', (req, res) => {
     const { vendedor_id, latitud, longitud } = req.body;
