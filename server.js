@@ -90,7 +90,7 @@ app.get('/clientes/:id', (req, res) => {
   });
   
   // Ruta para registrar la ubicación del cliente
-  app.post('/registrarUbicacion', (req, res) => {
+  app.post('/registrar_ubicacion', (req, res) => {
     const { codcli, razon, latitud, longitud } = req.body;
   
     if (!codcli || !razon || latitud === undefined || longitud === undefined) {
