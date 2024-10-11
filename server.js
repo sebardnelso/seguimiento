@@ -40,18 +40,6 @@ app.post('/login', (req, res) => {
     });
 });
 
-app.post('/location_error', (req, res) => {
-  const { vendedor_id, error, timestamp } = req.body;
-
-  // Mostrar el error en la consola (o en logs si tienes configurado)
-  console.error(`Error de ubicación recibido para vendedor ${vendedor_id}`);
-  console.error(`Error: ${error}`);
-  console.error(`Timestamp: ${timestamp}`);
-
-  // Responder al cliente que el error fue recibido
-  res.status(200).json({ message: 'Error recibido correctamente' });
-});
-
 // Ruta para recibir la ubicación
 app.post('/location', (req, res) => {
     const { vendedor_id, latitud, longitud } = req.body;
@@ -82,7 +70,49 @@ app.post('/location', (req, res) => {
         });
     });
 });
-
+// Ruta para buscar cliente por codcli
+app.get('/clientes/:id', (req, res) => {
+    const { id } = req.params;
+  
+    const query = 'SELECT razon FROM aus_cli WHERE id = ?';
+    pool.query(query, [id], (err, results) => {
+      if (err) {
+        console.error('Error en la consulta:', err);
+        return res.status(500).json({ success: false, message: 'Error en la base de datos' });
+      }
+  
+      if (results.length > 0) {
+        res.json({ success: true, razon: results[0].razon });
+      } else {
+        res.json({ success: false, message: 'Cliente no encontrado' });
+      }
+    });
+  });
+  
+  // Ruta para registrar la ubicación del cliente
+  app.post('/registrarUbicacion', (req, res) => {
+    const { codcli, razon, latitud, longitud } = req.body;
+  
+    if (!codcli || !razon || latitud === undefined || longitud === undefined) {
+      return res.status(400).json({ message: 'Faltan datos para registrar la ubicación' });
+    }
+  
+    const query = 'INSERT INTO aus_ubicliente (codcli, razon, latitud, longitud) VALUES (?, ?, ?, ?)';
+    
+    pool.query(query, [codcli, razon, latitud, longitud], (err, results) => {
+      if (err) {
+        console.error('Error al guardar la ubicación:', err);
+        return res.status(500).json({ message: 'Error al guardar la ubicación' });
+      }
+  
+      console.log(`Ubicación registrada: CODCLI ${codcli}, Razón ${razon}, Latitud ${latitud}, Longitud ${longitud}`);
+      
+      res.status(200).json({ 
+        message: 'Ubicación registrada correctamente' 
+      });
+    });
+  });
+  
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;
